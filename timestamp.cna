@@ -1,0 +1,33 @@
+beacon_command_register(
+"timestamp",
+"Modify timestamp of a file on disk.",
+"Usage: timestamp C:\\path\\to\\file.txt \"2006-02-15 21:01:01\"");
+
+alias timestamp {
+	local('$handle $data $args');
+	
+	$bid = $1;
+
+	# figure out the arch of this session
+	$barch  = barch($1);
+	
+
+	# read in the right BOF file
+	$handle = openf(script_resource("timestamp.".$barch.".o"));
+	$data = readb($handle, -1);
+	closef($handle);
+
+	if(size(@_) < 3)
+	{
+		berror($bid, "Incorrect usage!");
+		berror($bid, beacon_command_detail("timestamp"));
+		return;
+	}
+
+	$args = bof_pack($bid, "zz", $2, $3);   # pack our arguments 	  
+	btask($bid, "Timestamp (by Carl Nykvist)");	
+	beacon_inline_execute($bid, $data, "go", $args);  # execute it.
+
+}
+
+
